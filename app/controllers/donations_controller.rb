@@ -1,6 +1,5 @@
 class DonationsController < ApplicationController
-  def new
-  end
+  def new; end
 
   def create
     @amount = params[:amount]
@@ -12,10 +11,10 @@ class DonationsController < ApplicationController
     )
 
     charge = Stripe::Charge.create(
-      :amount      => @amount,
-      :description => 'Donation to codebar',
-      :currency    => 'gbp',
-      :customer    => customer.id,
+      amount: @amount,
+      description: 'Donation to codebar',
+      currency: 'gbp',
+      customer: customer.id,
     )
 
     render layout: false

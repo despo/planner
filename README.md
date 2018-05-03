@@ -32,19 +32,19 @@ The current Dockerfile and docker-compose were closely copied from the guide: ht
 
 ### Setting up a Ruby Environment
 
-You will need to install Ruby 2.3.3 using RVM or rbenv.
+You will need to install Ruby 2.4.2 using RVM or rbenv.
 
 #### Using [rvm](https://rvm.io/rvm/install)
 
 ```bash
-rvm install 2.3.3
+rvm install 2.4.2
 ```
 
 #### Using [rbenv](https://github.com/sstephenson/rbenv) and [ruby-build](https://github.com/sstephenson/ruby-build)
 
 ```bash
-rbenv install 2.3.3
-rbenv global 2.3.3
+rbenv install 2.4.2
+rbenv global 2.4.2
 ```
 
 ### Install and run PostgreSQL
@@ -56,6 +56,11 @@ Note: You might need to install another build of Xcode Tools (typing `brew updat
 brew update
 brew install postgresql
 brew services start postgresql
+```
+### Other dependencies
+```
+brew install imagemagick
+brew install phantomjs
 ```
 
 ### Install the Gems!

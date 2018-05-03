@@ -4,7 +4,7 @@ class Member < ActiveRecord::Base
   has_many :attendance_warnings
   has_many :bans
   has_many :eligibility_inquiries
-  has_many :session_invitations
+  has_many :workshop_invitations
   has_many :invitations
   has_many :auth_services
   has_many :feedbacks, foreign_key: :coach_id
@@ -19,7 +19,7 @@ class Member < ActiveRecord::Base
   validates :auth_services, presence: true
   validates :name, :surname, :email, :about_you, presence: true, if: :can_log_in?
   validates_uniqueness_of :email
-  validates_length_of :about_you, :maximum => 255
+  validates_length_of :about_you, maximum: 255
 
   scope :subscribers, -> { joins(:subscriptions).order('created_at desc').uniq }
   acts_as_taggable_on :skills
@@ -31,7 +31,7 @@ class Member < ActiveRecord::Base
   end
 
   def banned?
-    bans.active.present? or bans.permanent.present?
+    bans.active.present? || bans.permanent.present?
   end
 
   def banned_permanently?
@@ -39,12 +39,12 @@ class Member < ActiveRecord::Base
   end
 
   def more_than_two_absences?
-    session_invitations.last_six_months.accepted.length - session_invitations.last_six_months.attended.length > 2
+    workshop_invitations.last_six_months.accepted.length - workshop_invitations.last_six_months.attended.length > 2
   end
 
   def full_name
-    pronoun  = self.pronouns.present? ? "(#{self.pronouns})" : nil
-    [name, surname, pronoun].compact.join " "
+    pronoun = self.pronouns.present? ? "(#{self.pronouns})" : nil
+    [name, surname, pronoun].compact.join ' '
   end
 
   def student?
@@ -75,12 +75,12 @@ class Member < ActiveRecord::Base
     self.attendance_warnings.create(sent_by_id: user.id)
   end
 
-  def avatar size=100
+  def avatar(size = 100)
     "https://secure.gravatar.com/avatar/#{md5_email}?size=#{size}&default=identicon"
   end
 
-  def attended_sessions
-    session_invitations.attended.map(&:workshop)
+  def attended_workshops
+    workshop_invitations.attended.map(&:workshop)
   end
 
   def requires_additional_details?
@@ -88,23 +88,23 @@ class Member < ActiveRecord::Base
   end
 
   def verified?
-    session_invitations.exists?(role: "Coach", attended: true)
+    workshop_invitations.exists?(role: 'Coach', attended: true)
   end
 
   def verified_or_organiser?
-    verified? or organised_chapters.present?
+    verified? || organised_chapters.present?
   end
 
   def twitter_url
     "http://twitter.com/#{twitter}"
   end
 
-  def has_existing_RSVP_on date
+  def has_existing_RSVP_on(date)
     invitations_on(date).count > 0
   end
 
-  def already_attending event
-    invitations.where(attending: true).map{|e| e.event.id}.include?(event.id)
+  def already_attending(event)
+    invitations.where(attending: true).map{ |e| e.event.id }.include?(event.id)
   end
 
   def is_organiser?
@@ -112,7 +112,7 @@ class Member < ActiveRecord::Base
   end
 
   def is_admin_or_organiser?
-    has_role?(:admin) or is_organiser?
+    has_role?(:admin) || is_organiser?
   end
 
   def is_monthlies_organiser?
@@ -121,8 +121,8 @@ class Member < ActiveRecord::Base
 
   private
 
-  def invitations_on date
-    session_invitations.joins(:workshop).where('workshops.date_and_time BETWEEN ? AND ?', date.beginning_of_day, date.end_of_day).where(attending: true)
+  def invitations_on(date)
+    workshop_invitations.joins(:workshop).where('workshops.date_and_time BETWEEN ? AND ?', date.beginning_of_day, date.end_of_day).where(attending: true)
   end
 
   def md5_email

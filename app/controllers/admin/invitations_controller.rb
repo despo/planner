@@ -1,5 +1,5 @@
 class Admin::InvitationsController < Admin::ApplicationController
-  include  Admin::WorkshopConcerns
+  include Admin::WorkshopConcerns
 
   def update
     set_workshop
@@ -7,13 +7,13 @@ class Admin::InvitationsController < Admin::ApplicationController
 
     set_invitation
 
-    if params.has_key?(:attending)
+    if params.key?(:attending)
       attending = params[:attending]
 
-      if attending.eql?("true")
+      if attending.eql?('true')
         @invitation.update_attribute(:attending, true)
 
-        SessionInvitationMailer.attending(@workshop, @invitation.member, @invitation).deliver_now if @workshop.future?
+        WorkshopInvitationMailer.attending(@workshop, @invitation.member, @invitation).deliver_now if @workshop.future?
 
         message = "You have added #{@invitation.member.full_name} to the workshop as a #{@invitation.role}."
       else
@@ -21,10 +21,10 @@ class Admin::InvitationsController < Admin::ApplicationController
 
         message = "You have removed #{@invitation.member.full_name} from the workshop."
       end
-      waiting_listed = WaitingList.where(invitation: @invitation).first
-      waiting_listed.delete if waiting_listed
+      waiting_listed = WaitingList.find_by(invitation: @invitation)
+      waiting_listed.destroy if waiting_listed
 
-    elsif params.has_key?(:attended)
+    elsif params.key?(:attended)
       @invitation.update_attribute(:attended, true)
 
       message = "You have verified #{@invitation.member.full_name}'s attendace."
@@ -43,10 +43,10 @@ class Admin::InvitationsController < Admin::ApplicationController
   private
 
   def set_invitation
-    @invitation = @workshop.invitations.find_by_token(invitation_id)
+    @invitation = @workshop.invitations.find_by(token: invitation_id)
   end
 
   def invitation_id
-    params.has_key?(:workshop) ? params[:workshop][:invitations] : params[:id]
+    params.key?(:workshop) ? params[:workshop][:invitations] : params[:id]
   end
 end

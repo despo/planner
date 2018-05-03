@@ -47,6 +47,11 @@ en:
     feedback_not_found: "You have already submitted feedback for this event."
     updated_note: "Successfully updated note."
 
+    invitations:
+      rsvped_to_other_workshop: "You have already RSVP'd to another workshop on this date. If you would prefer to attend this workshop, please cancel your other RSVP first."
+      spot_confirmed: "Your spot has been confirmed for %{event}! We look forward to seeing you there."
+      spot_not_confirmed: 'Your spot has not yet been confirmed. We will verify your attendance after you complete the questionnaire.'
+
   notifications:
     provider_already_connected: 'You are already signed in!'
     not_logged_in: "You must be logged in to access this page."
@@ -73,7 +78,7 @@ en:
       rule2: "You must sign up and RSVP to attend our workshops."
       rule3: "If you RSVP then later realise you can’t make it, you must cancel. It only takes a few seconds to do through your confirmation email."
       rule4: "Please try to cancel with at least 24 hours notice."
-      rule5: "We know that sometimes things come up last minute, but even if you only cancel an hour before the session, get in touch and let us know."
+      rule5: "We know that sometimes things come up last minute, but even if you only cancel an hour before the workshop, get in touch and let us know."
       what_happens: "What happens if I don’t respect the policy?"
       strikes_system: "We operate a three strikes system. That means if you don’t come in without cancelling an RSVP three times, we will take you off our invite list for four weeks. We’ll get in touch after your first absence to make sure you understand this."
       removing: "If you fail to attend without cancelling another three times, we might have to remove you permanently from our invitation list."
@@ -241,3 +246,9 @@ en:
       destroy:
         success: "Workshop deleted successfully"
         failure: "Workshop cannot be deleted. This is because it has invitees and/or workshop information is on the website for a while long enough that it cannot be deleted."
+    messages:
+      meeting:
+        created: 'Meeting succesfully created'
+        updated: 'You have succesfully updated the details of this meeting'
+        invitations_already_sent: 'Invitations were previously sent; they will not be sent again'
+        sending_invitations: 'Invitations are being sent out'

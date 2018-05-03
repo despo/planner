@@ -1,12 +1,11 @@
 class EventPresenter < SimpleDelegator
-  PRESENTER = { workshop: "WorkshopPresenter",
-                course: "CoursePresenter",
-                meeting: "MeetingPresenter",
-                event: "EventPresenter" }
-
+  PRESENTER = { workshop: 'WorkshopPresenter',
+                course: 'CoursePresenter',
+                meeting: 'MeetingPresenter',
+                event: 'EventPresenter' }
 
   def self.decorate_collection(collection)
-    collection.map {|e| PRESENTER[e.class.to_s.downcase.to_sym].constantize.new(e) }
+    collection.map { |e| PRESENTER[e.class.to_s.downcase.to_sym].constantize.new(e) }
   end
 
   def chapter
@@ -34,7 +33,7 @@ class EventPresenter < SimpleDelegator
   end
 
   def organisers
-    @organisers ||= model.permissions.find_by_name("organiser").members rescue []
+    @organisers ||= model.permissions.find_by(name: 'organiser').members rescue []
   end
 
   def month
@@ -66,11 +65,11 @@ class EventPresenter < SimpleDelegator
   end
 
   def coach_spaces?
-    venue.present? and venue.coach_spots > attending_coaches.length
+    venue.present? && (venue.coach_spots > attending_coaches.length)
   end
 
   def student_spaces?
-    venue.present? and venue.seats > attending_students.length if venue.present?
+    venue.present? && (venue.seats > attending_students.length)
   end
 
   def event_coach_spaces?
@@ -82,17 +81,17 @@ class EventPresenter < SimpleDelegator
   end
 
   def attendees_csv
-    CSV.generate {|csv| attendee_array.each { |a| csv << a } }
+    CSV.generate { |csv| attendee_array.each { |a| csv << a } }
   end
 
   private
 
   def attendee_array
-    model.attendances.map {|i| [i.member.full_name, i.role.upcase] }
+    model.attendances.map { |i| [i.member.full_name, i.role.upcase] }
   end
 
   def chapter_organisers
-    model.chapter.permissions.find_by_name("organiser").members rescue []
+    model.chapter.permissions.find_by(name: 'organiser').members rescue []
   end
 
   def model

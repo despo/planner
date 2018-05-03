@@ -7,7 +7,7 @@ Planner::Application.configure do
   # and recreated between test runs. Don't rely on the data there!
   config.cache_classes = true
 
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+  config.action_mailer.default_url_options = { host: 'localhost:3000' }
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
@@ -15,7 +15,7 @@ Planner::Application.configure do
 
   # Configure static asset server for tests with Cache-Control for performance.
   config.serve_static_files = true
-  config.static_cache_control = "public, max-age=3600"
+  config.static_cache_control = 'public, max-age=3600'
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -37,4 +37,10 @@ Planner::Application.configure do
 
   # Fake omniauth for testing
   OmniAuth.config.test_mode = true
+
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+    Bullet.raise = true # raise an error if n+1 query occurs
+  end
 end

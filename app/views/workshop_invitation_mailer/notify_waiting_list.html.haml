@@ -20,11 +20,11 @@
           %table{ bgcolor: "#FFFFFF" }
             %tr
               %td.small{ width: "30%", style: "vertical-align: top; padding-right:10px;"}
-                =image_tag(@workshop.venue.avatar)
+                =image_tag(@workshop.venue.avatar, @workshop.venue.name)
               %td
                 %h4
                   Workshop
-                  %small #{humanize_date_with_time(@session.date_and_time, @session.time)}
+                  %small #{humanize_date(@workshop.date_and_time, with_time: true)}
                 %p
                   #{@workshop.venue.name}
                   %br

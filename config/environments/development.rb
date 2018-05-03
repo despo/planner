@@ -9,7 +9,7 @@ Planner::Application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+  config.action_mailer.default_url_options = { host: 'localhost:3000' }
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -32,4 +32,11 @@ Planner::Application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = true
+
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+    Bullet.console = true
+    Bullet.rails_logger = true
+  end
 end

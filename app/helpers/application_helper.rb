@@ -1,30 +1,22 @@
 module ApplicationHelper
-
-  def humanize_date(date)
+  def humanize_date(date, with_time: false)
     human_date = "#{I18n.l(date, format: :day_in_words)}, "
     human_date << "#{ActiveSupport::Inflector.ordinalize(date.day)} "
     human_date << I18n.l(date, format: :month)
-  end
-
-  def humanize_date_with_time(date, time=date)
-    human_date = humanize_date(date)
-    human_date << " at #{I18n.l(time, format: :time)}"
+    human_date << " at #{I18n.l(date.time, format: :time)}" if with_time
+    human_date
   end
 
   def dot_markdown(text)
     GitHub::Markdown.render_gfm(text).html_safe
   end
 
-  def belongs_to_group? group
+  def belongs_to_group?(group)
     current_user.groups.include?(group)
   end
 
-  def can_access?(resource)
-    current_user.has_role?(:admin) or current_user.has_role?(:organiser) or current_user.has_role?(:organiser, resource)
-  end
-
   def has_permission?
-    current_user.has_role?(:admin) or current_user.has_role?(:organiser) or Chapter.find_roles(:organiser, current_user).any?
+    current_user.has_role?(:admin) || current_user.has_role?(:organiser) || Chapter.find_roles(:organiser, current_user).any?
   end
 
   def member_token(member)
@@ -41,11 +33,14 @@ module ApplicationHelper
   end
 
   def contact_email
-    @contact_email ||= @session.present? ? @session.chapter.email : "hello@codebar.io"
+    @contact_email ||= @workshop.present? ? @workshop.chapter.email : 'hello@codebar.io'
   end
 
   def active_link_class(link_path)
-    current_page?(link_path) ? "active" : ""
+    current_page?(link_path) ? 'active' : ''
   end
 
+  def twitter_url_for(username)
+    "http://twitter.com/#{username}"
+  end
 end

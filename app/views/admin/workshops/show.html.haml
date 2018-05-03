@@ -38,9 +38,9 @@
             %small=@workshop.chapter.name
         %h3
           %small #{l(@workshop.date_and_time)}
-        - if @workshop.rsvp_open_time_set?
+        - if @workshop.rsvp_opens_at
           RSVPs will open at
-          = @workshop.rsvp_open_time.strftime('%H:%M on %d/%m/%Y.')
+          = @workshop.rsvp_opens_at.strftime('%H:%M on %d/%m/%Y.')
           %br
           %br
         - if @workshop.venue.present?
@@ -67,7 +67,7 @@
         %h4 Team
         - @workshop.organisers.each do |organiser|
           %span.has-tip{ 'data-tooltip': '', 'aria-haspopup': 'true',  title: organiser.full_name }
-            = image_tag(organiser.avatar(40))
+            = image_tag(organiser.avatar(40), alt: organiser.full_name)
 
   .stripe.reverse#invitations
     = render partial: 'invitation_management'

@@ -3,12 +3,12 @@ class MemberPresenter < SimpleDelegator
     has_role? :organiser, :any
   end
 
-  def event_organiser? event
+  def event_organiser?(event)
     has_role?(:organiser, event) || has_role?(:organiser, event.chapter) || has_role?(:admin)
   end
 
   def newbie?
-    !session_invitations.attended.exists?
+    !workshop_invitations.attended.exists?
   end
 
   def attending?(event)
@@ -20,5 +20,4 @@ class MemberPresenter < SimpleDelegator
   def model
     __getobj__
   end
-
 end

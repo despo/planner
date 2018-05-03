@@ -28,11 +28,11 @@ class EventInvitationMailer < ActionMailer::Base
     end
   end
 
-  def attending event, member, invitation
+  def attending(event, member, invitation)
     @event = EventPresenter.new(event)
     @member = member
     @invitation = invitation
-    @host_address = AddressDecorator.decorate(@event.venue.address)
+    @host_address = AddressPresenter.new(@event.venue.address)
 
     require 'services/event_calendar'
     attachments['codebar.ics'] = { mime_type: 'text/calendar',
@@ -48,7 +48,7 @@ class EventInvitationMailer < ActionMailer::Base
   private
 
   helper do
-    def full_url_for path
+    def full_url_for(path)
       "#{@host}#{path}"
     end
   end

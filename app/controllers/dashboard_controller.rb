@@ -5,69 +5,75 @@ class DashboardController < ApplicationController
   def show
     @chapters = Chapter.all.order(:created_at)
     @user = current_user ? MemberPresenter.new(current_user) : nil
-    @upcoming_workshops = upcoming_events.map.inject({}) { |hash, (key, value)| hash[key] = EventPresenter.decorate_collection(value); hash}
+    @upcoming_workshops = upcoming_events.map.inject({}) do |hash, (key, value)|
+      hash[key] = EventPresenter.decorate_collection(value)
+      hash
+    end
 
-    @testimonials = Testimonial.order("RANDOM() ").limit(5).includes(:member)
-
-    @sponsors = Sponsor.latest
+    @testimonials = Testimonial.order('RANDOM() ').limit(5).includes(:member)
   end
 
   def dashboard
     @user = MemberPresenter.new(current_user)
-    @ordered_events = upcoming_events_for_user.map.inject({}) { |hash, (key, value)| hash[key] = EventPresenter.decorate_collection(value); hash}
+    @ordered_events = upcoming_events_for_user.map.inject({}) do |hash, (key, value)|
+      hash[key] = EventPresenter.decorate_collection(value)
+      hash
+    end
     @announcements = current_user.announcements.active
   end
 
-  def code
-  end
+  def code; end
 
-  def faq
-  end
+  def faq; end
 
-  def about
-  end
+  def about; end
 
   def wall_of_fame
-    sessions_count = Workshop.count
-    @coaches = order_by_attendance(attendance_stats_by_coach).map do |member_id, attendances|
-      member = Member.unscoped.find(member_id)
-      member.attendance = attendances
-      member
-    end
+    @coaches = Member.where(id: top_coach_query).paginate(page: page, per_page: 60)
   end
 
-  def participant_guide
-  end
+  def participant_guide; end
 
   private
-
-  def attendance_stats_by_coach
-    SessionInvitation.to_coaches.attended.by_member.count(:member_id)
+  def page
+    params.permit(:page)[:page]
   end
 
-  def order_by_attendance member_stats
-    member_stats.sort_by { |member_id, attendance| attendance }.reverse
+  def top_coach_query
+    WorkshopInvitation.to_coaches
+                     .attended
+                     .group(:member_id)
+                     .order('COUNT(member_id) DESC')
+                     .select(:member_id)
   end
 
   def upcoming_events
-    workshops = Workshop.upcoming || []
+    workshops = Workshop.upcoming.includes(:chapter, :sponsors)
     all_events(workshops).sort_by(&:date_and_time).group_by(&:date)
   end
 
   def upcoming_events_for_user
-    chapters = current_user.groups.map(&:chapter).uniq!
-    workshops = chapters.collect { |c| c.workshops.upcoming } if chapters
-    workshops ||= []
-    workshops << current_user.session_invitations.accepted.joins(:workshop).where("workshops.date_and_time > ?", Time.zone.now).map(&:workshop)
-    all_events(workshops).sort_by(&:date_and_time).group_by(&:date)
+    chapter_workshops = Workshop.upcoming
+                                .where(chapter: current_user.chapters)
+                                .includes(:chapter, :sponsors)
+                                .to_a
+
+    accepted_workshops = current_user.workshop_invitations.accepted
+                             .joins(:workshop)
+                             .merge(Workshop.upcoming)
+                             .includes(workshop: [:chapter, :sponsors])
+                             .map(&:workshop)
+
+    all_events(chapter_workshops + accepted_workshops)
+      .sort_by(&:date_and_time)
+      .group_by(&:date)
   end
 
   def all_events(workshops)
     course = Course.next
     meeting = Meeting.next
-    event = Event.future(DEFAULT_UPCOMING_EVENTS)
+    events = Event.future(DEFAULT_UPCOMING_EVENTS)
 
-    all_events = workshops << course << event << meeting
-    all_events = all_events.compact.flatten
+    [*workshops, course, *events, meeting].compact
   end
 end

@@ -1,21 +1,21 @@
 %section#banner
   .row
     .large-9.columns
-      %h2= @sponsor.name
+      %h1= @sponsor.name
     .large-3.columns
       = link_to 'Edit', edit_admin_sponsor_path(@sponsor), class: 'button round'
 
   .row
     .large-3.columns
       %h4 Address
-      = AddressDecorator.new(@sponsor.address).to_html
+      = AddressPresenter.new(@sponsor.address).to_html
 
     .large-3.columns
       %h4 Logo
-      = image_tag @sponsor.avatar
+      = image_tag(@sponsor.avatar, alt: @sponsor.name)
     .large-3.columns
       %h4 Contacts
-      = SponsorDecorator.new(@sponsor).contact_info
+      = SponsorPresenter.new(@sponsor).contact_info
     .large-3.columns
       %h4 Sponsored
       %ul.no-bullet
@@ -24,4 +24,8 @@
             = link_to admin_workshop_path(workshop) do
               %strong=workshop.chapter.name
               %br
-              = humanize_date_with_time(workshop.date_and_time, workshop.time)
+              = humanize_date(workshop.date_and_time, with_time: true)
+  .row
+    .large-6.columns
+      %h4 Accessibility information
+      %p= @sponsor.accessibility_info
