@@ -1,9 +1,8 @@
 class Admin::SponsorsController < Admin::ApplicationController
-
-  before_filter :set_sponsor, only: [ :show, :edit, :update]
+  before_filter :set_sponsor, only: %i[show edit update]
 
   def index
-    authenticate_admin_or_organiser!
+    authorize Sponsor
     @sponsors = Sponsor.all.order(:name)
   end
 
@@ -36,14 +35,12 @@ class Admin::SponsorsController < Admin::ApplicationController
 
   def update
     @sponsor.update_attributes(sponsor_params)
-    redirect_to admin_sponsor_path(@sponsor), notice: "Updated!"
+    redirect_to admin_sponsor_path(@sponsor), notice: 'Updated!'
   end
 
   private
   def sponsor_params
-    params.require(:sponsor).permit(:name, :avatar, :website, :seats, :number_of_coaches, 
-      :email, :contact_first_name, :contact_surname, contact_ids: [],
-      address_attributes: [:flat, :street, :postal_code, :city, :latitude, :longitude])
+    params.require(:sponsor).permit(:name, :avatar, :website, :seats, :accessibility_info, :number_of_coaches, :level, :email, :contact_first_name, :contact_surname, contact_ids: [], address_attributes: %i[flat street postal_code city latitude longitude])
   end
 
   def set_sponsor

@@ -1,6 +1,6 @@
 class Admin::EventsController < Admin::ApplicationController
   before_filter :set_event, only: [:show]
-  before_filter :find_event, only: [:edit, :update]
+  before_filter :find_event, only: %i[edit update]
 
   def new
     @event = Event.new
@@ -17,16 +17,15 @@ class Admin::EventsController < Admin::ApplicationController
     end
   end
 
-  def edit
-  end
+  def edit; end
 
   def show
     authorize @original_event
 
-    @address = AddressDecorator.decorate(@event.venue.address) if @event.venue.present?
+    @address = AddressPresenter.new(@event.venue.address) if @event.venue.present?
     @attending_students = InvitationPresenter.decorate_collection(@original_event.attending_students)
     @attending_coaches = InvitationPresenter.decorate_collection(@original_event.attending_coaches)
-    @host_address = AddressDecorator.new(@event.venue.address)
+    @host_address = AddressPresenter.new(@event.venue.address)
 
     return render text: @event.attendees_csv if request.format.csv?
   end
@@ -35,28 +34,28 @@ class Admin::EventsController < Admin::ApplicationController
     set_organisers(organiser_ids)
 
     if @event.update_attributes(event_params)
-      redirect_to [:admin, @event], notice: "You have just updated the event"
+      redirect_to [:admin, @event], notice: 'You have just updated the event'
     else
       render 'edit', notice: 'Error'
     end
   end
 
   def invite
-    @event = Event.find_by_slug(params[:event_id])
+    @event = Event.find_by(slug: params[:event_id])
     authorize @event
 
     @event.chapters.each do |chapter|
       InvitationManager.new.send_event_emails(@event, chapter)
     end
 
-    redirect_to admin_event_path(@event), notice: "Invitations will be emailed out soon."
+    redirect_to admin_event_path(@event), notice: 'Invitations will be emailed out soon.'
   end
 
   def attendees_emails
-    event = Event.find_by_slug(params[:event_id])
+    event = Event.find_by(slug: params[:event_id])
 
-    students = event.student_emails.join(", ")
-    coaches = event.coach_emails.join(", ")
+    students = event.student_emails.join(', ')
+    coaches = event.coach_emails.join(', ')
 
     @list = "STUDENTS\n\n" + students + "\n\nCOACHES\n\n" + coaches
 
@@ -68,13 +67,13 @@ class Admin::EventsController < Admin::ApplicationController
   private
 
   def set_event
-    @original_event = Event.find_by_slug(params[:id])
+    @original_event = Event.find_by(slug: params[:id])
     @event = EventPresenter.new(@original_event)
   end
 
   def event_params
     params.require(:event).permit(
-        :name, :slug, :date_and_time, :begins_at, :ends_at, :description, :info, :schedule, :venue_id, :external_url,
+      :name, :slug, :date_and_time, :begins_at, :ends_at, :description, :info, :schedule, :venue_id, :external_url,
         :coach_spaces, :student_spaces, :email, :announce_only, :tito_url, :invitable, :student_questionnaire,
         :confirmation_required, :surveys_required, :audience,
         :coach_questionnaire, :show_faq, :display_coaches, :display_students, sponsor_ids: [], chapter_ids: []
@@ -85,7 +84,7 @@ class Admin::EventsController < Admin::ApplicationController
     params[:event][:organisers]
   end
 
-  def grant_organiser_access(organiser_ids=[])
+  def grant_organiser_access(organiser_ids = [])
     organiser_ids.each { |id| Member.find(id).add_role(:organiser, @event) }
   end
 
@@ -102,6 +101,6 @@ class Admin::EventsController < Admin::ApplicationController
   end
 
   def find_event
-    @event = Event.find_by_slug(params[:id])
+    @event = Event.find_by(slug: params[:id])
   end
 end

@@ -8,10 +8,20 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
   helper_method :current_service
 
+  rescue_from ActionController::RoutingError, with: :render_404
+  rescue_from ActiveRecord::RecordNotFound , with: :render_404
+
+  def render_404
+    respond_to do |format|
+      format.html { render :template => "errors/404", layout: false, :status => 404 }
+      format.all  { render :nothing => true, :status => 404 }
+    end
+  end
+
   protected
 
   def current_user
-    if session.has_key?(:member_id)
+    if session.key?(:member_id)
       @current_member ||= Member.find(session[:member_id])
     end
   rescue ActiveRecord::RecordNotFound
@@ -19,9 +29,9 @@ class ApplicationController < ActionController::Base
   end
 
   def current_service
-    if session.has_key?(:service_id)
-      @current_service ||= Service.where(member_id: session[:member_id],
-                                         id: session[:service_id]).first
+    if session.key?(:service_id)
+      @current_service ||= Service.find_by(member_id: session[:member_id],
+                                           id: session[:service_id])
     end
   rescue ActiveRecord::RecordNotFound
     session[:service_id] = nil
@@ -60,11 +70,11 @@ class ApplicationController < ActionController::Base
 
   helper_method :redirect_path
   def redirect_path
-    "/auth/github"
+    '/auth/github'
   end
 
   def authenticate_admin!
-    redirect_to root_path, notice: "You can't be here" unless logged_in? and current_user.has_role?(:admin)
+    redirect_to root_path, notice: "You can't be here" unless logged_in? && current_user.has_role?(:admin)
   end
 
   def authenticate_admin_or_organiser!
@@ -72,7 +82,7 @@ class ApplicationController < ActionController::Base
   end
 
   def manager?
-    logged_in? and (current_user.is_admin? or current_user.has_role?(:organiser, :any))
+    logged_in? && (current_user.is_admin? || current_user.has_role?(:organiser, :any))
   end
 
   helper_method :manager?
@@ -102,11 +112,11 @@ class ApplicationController < ActionController::Base
   private
 
   def user_not_authorized
-    redirect_to(user_path, notice: "You are not authorized to perform this action.")
+    redirect_to(user_path, notice: 'You are not authorized to perform this action.')
   end
 
   def user_path
-    request.referrer or root_path
+    request.referrer || root_path
   end
 
   def jobs_pending_approval

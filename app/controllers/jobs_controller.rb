@@ -1,7 +1,7 @@
 class JobsController < ApplicationController
-  before_filter :set_job, only: [:show, :preview, :edit, :update, :submit]
-  before_filter :is_logged_in?, except: [:index, :show]
-  before_filter :has_access?, only: [:edit, :update, :submit]
+  before_filter :set_job, only: %i[show preview edit update submit]
+  before_filter :is_logged_in?, except: %i[index show]
+  before_filter :has_access?, only: %i[edit update submit]
 
   def index
     @jobs = Job.approved.ordered
@@ -25,21 +25,20 @@ class JobsController < ApplicationController
     end
   end
 
-  def preview
-  end
+  def preview; end
 
   def edit
-    redirect_to root_path, notice: "As the post has already been approved if you need to make any amendments please get in touch with the organisers at london@codebar.io." if @job.approved?
+    redirect_to root_path, notice: 'As the post has already been approved if you need to make any amendments please get in touch with the organisers at london@codebar.io.' if @job.approved?
   end
 
   def show
-    redirect_to jobs_path unless @job.approved? and @job.submitted?
+    redirect_to jobs_path unless @job.approved? && @job.submitted?
   end
 
   def submit
     @job.update_attribute(:submitted, true)
 
-    flash[:notice] = "Job submitted. You will receive an email when the job has ben approved."
+    flash[:notice] = 'Job submitted. You will receive an email when the job has ben approved.'
     redirect_to root_path
   end
 
@@ -60,6 +59,6 @@ class JobsController < ApplicationController
   end
 
   def has_access?
-    redirect_to root_path unless logged_in? and @job.created_by.eql?(current_user)
+    redirect_to root_path unless logged_in? && @job.created_by.eql?(current_user)
   end
 end

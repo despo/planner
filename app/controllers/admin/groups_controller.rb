@@ -12,7 +12,7 @@ class Admin::GroupsController < Admin::ApplicationController
 
     if @group.save
       flash[:notice] = "Group #{@group.name} for chapter #{@group.chapter.name} has been successfully created"
-      redirect_to [ :admin, @group ]
+      redirect_to [:admin, @group]
     else
       flash[:notice] = @group.errors.full_messages
       render 'new'
@@ -22,7 +22,6 @@ class Admin::GroupsController < Admin::ApplicationController
   def show
     @group = Group.find(params[:id])
     authorize @group
-
   end
 
   private

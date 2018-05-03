@@ -1,11 +1,11 @@
-require "spec_helper"
+require 'spec_helper'
 
-describe "feedback:request" do
-  include_context "rake"
+describe 'feedback:request' do
+  include_context 'rake'
 
-  its(:prerequisites) { should include("environment") }
+  its(:prerequisites) { should include('environment') }
 
-  context "when most recent workshop has attendances" do
+  context 'when most recent workshop has attendances' do
     let(:group) { Fabricate(:students) }
     let(:workshop) { Fabricate(:workshop, date_and_time: 1.day.ago, chapter: group.chapter) }
     let(:student) { Fabricate(:member) }
@@ -13,14 +13,14 @@ describe "feedback:request" do
 
     before do
       allow(STDOUT).to receive(:puts)
-      student.session_invitations << Fabricate(:attending_session_invitation, member: student, workshop: workshop)
+      student.workshop_invitations << Fabricate(:attending_workshop_invitation, member: student, workshop: workshop)
     end
 
     it 'should gracefully run' do
       expect { subject.invoke }.to_not raise_error
     end
 
-    it "generates a FeedbackRequest" do
+    it 'generates a FeedbackRequest' do
       expect(FeedbackRequest).to receive(:create).with(member: student, workshop: workshop, submited: false)
 
       subject.invoke

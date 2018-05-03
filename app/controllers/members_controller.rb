@@ -1,9 +1,9 @@
 class MembersController < ApplicationController
-  before_action :authenticate_member!, only: [:edit, :show, :step1, :step2]
+  before_action :authenticate_member!, only: %i[edit show step1 step2]
   autocomplete :skill, :name, class_name: 'ActsAsTaggableOn::Tag'
 
   def new
-    @page_title = "Sign up"
+    @page_title = 'Sign up'
   end
 
   def edit
@@ -13,9 +13,9 @@ class MembersController < ApplicationController
   def step1
     @suppress_notices = true
     @member = current_user
-    if request.post? or request.put?
+    if request.post? || request.put?
       if @member.update_attributes(member_params)
-        redirect_to step2_member_path and return
+        return redirect_to step2_member_path
       end
     end
   end
@@ -38,10 +38,10 @@ class MembersController < ApplicationController
     @member = current_user
 
     if @member.update_attributes(member_params)
-      notice = "Your details have been updated."
-      redirect_to(profile_path, notice: notice) and return
+      notice = 'Your details have been updated.'
+      return redirect_to profile_path, notice: notice
     else
-      render "edit"
+      render 'edit'
     end
   end
 
@@ -55,7 +55,7 @@ class MembersController < ApplicationController
 
     redirect_to subscriptions_path
   rescue
-    redirect_to root_path, notice: "Your token is invalid. "
+    redirect_to root_path, notice: 'Your token is invalid. '
   end
 
   private

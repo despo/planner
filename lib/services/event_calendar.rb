@@ -1,5 +1,4 @@
 class EventCalendar
-
   attr_reader :event
 
   def initialize(event)
@@ -14,17 +13,14 @@ class EventCalendar
   private
 
   def setup_event
-    start_date = event.date_and_time.strftime('%Y%m%d')
-    end_time = event.ends_at.strftime('%H%M')
-    end_date = DateTime.parse("#{start_date}#{end_time}")
-    address = AddressDecorator.decorate(event.venue.address)
+    address = AddressPresenter.new(event.venue.address)
     calendar.event do |e|
-      e.organizer = "#{event.email}"
+      e.organizer = event.email.to_s
       e.dtstart = event.date_and_time
       e.dtend = event.ends_at
       e.summary = event.name
       e.location = address.to_s
-      e.ip_class = "PRIVATE"
+      e.ip_class = 'PRIVATE'
     end
   end
 end

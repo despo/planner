@@ -5,20 +5,20 @@ class Admin::MeetingInvitationsController < Admin::ApplicationController
     status = params[:attendance_status]
     attended = params[:attended]
 
-    @invitation.update_attributes(:attending => status, :attended => attended)
+    @invitation.update_attributes(attending: status, attended: attended)
 
     redirect_to [:admin, @invitation.meeting]
   end
 
   def create
     member = Member.find(params[:meeting_invitations][:member])
-    meeting = Meeting.find_by_slug(params[:meeting_invitations][:meeting_id])
+    meeting = Meeting.find_by(slug: params[:meeting_invitations][:meeting_id])
 
     if meeting.invitations.accepted.map(&:member_id).include?(member.id)
       return redirect_to [:admin, meeting], notice: "#{member.full_name} is already on the list!"
     end
 
-    invite = meeting.invitations.create(member: member, attending: true, role: "Participant")
+    invite = meeting.invitations.create(member: member, attending: true, role: 'Participant')
 
     if invite.save
       redirect_to [:admin, meeting], notice: "#{member.full_name} has been successfully added and notified via email."
@@ -31,6 +31,6 @@ class Admin::MeetingInvitationsController < Admin::ApplicationController
   private
 
   def set_invitation
-    @invitation = MeetingInvitation.find_by_token(params[:id])
+    @invitation = MeetingInvitation.find_by(token: params[:id])
   end
 end

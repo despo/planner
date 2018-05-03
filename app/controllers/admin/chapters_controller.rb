@@ -1,4 +1,5 @@
 class Admin::ChaptersController < Admin::ApplicationController
+  before_action :set_chapter, only: [:show, :edit, :update]
   after_action :verify_authorized
 
   def new
@@ -12,7 +13,7 @@ class Admin::ChaptersController < Admin::ApplicationController
 
     if @chapter.save
       flash[:notice] = "Chapter #{@chapter.name} has been successfully created"
-      redirect_to [:admin, @chapter ]
+      redirect_to [:admin, @chapter]
     else
       flash[:notice] = @chapter.errors.full_messages
       render 'new'
@@ -20,7 +21,6 @@ class Admin::ChaptersController < Admin::ApplicationController
   end
 
   def show
-    @chapter = Chapter.find(params[:id])
     authorize(@chapter)
 
     @workshops = @chapter.workshops.upcoming
@@ -30,17 +30,15 @@ class Admin::ChaptersController < Admin::ApplicationController
   end
 
   def edit
-    @chapter = Chapter.find(params[:id])
     authorize @chapter
   end
 
   def update
-    @chapter = Chapter.find(params[:id])
     authorize(@chapter)
 
     if @chapter.update(chapter_params)
       flash[:notice] = "Chapter #{@chapter.name} has been successfully updated"
-      redirect_to [:admin, @chapter ]
+      redirect_to [:admin, @chapter]
     else
       flash[:notice] = @chapter.errors.full_messages
       render 'edit'
@@ -52,7 +50,7 @@ class Admin::ChaptersController < Admin::ApplicationController
     authorize chapter
     type = params[:type]
 
-    if ["students", "coaches"].include?(type)
+    if ['students', 'coaches'].include?(type)
       @emails = chapter.send(type).map(&:email).join("\n")
     else
       @emails = chapter.members.pluck(:email).uniq.join("\n")
@@ -64,6 +62,10 @@ class Admin::ChaptersController < Admin::ApplicationController
   private
 
   def chapter_params
-    params.require(:chapter).permit(:name, :email, :city, :twitter)
+    params.require(:chapter).permit(:name, :email, :city, :time_zone, :twitter)
+  end
+
+  def set_chapter
+    @chapter = Chapter.find(params[:id])
   end
 end
