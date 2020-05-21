@@ -9,34 +9,27 @@ module InvitationControllerConcerns
 
   module InstanceMethods
     def accept
-      if @invitation.attending?
-        return redirect_back(fallback_location: invitation_path(@invitation),
-                             notice: t('messages.already_rsvped'))
-      end
-
       user = current_user || @invitation.member
-      @workshop = WorkshopPresenter.decorate(@invitation.workshop)
+      workshop = @invitation.workshop
 
-      if user.has_existing_RSVP_on(@invitation.workshop.date_and_time)
-        return redirect_back(fallback_location: invitation_path(@invitation),
-                             notice: t('messages.invitations.rsvped_to_other_workshop'))
+      return back_with_message(t('messages.already_rsvped')) if @invitation.attending?
+
+      if user.has_existing_RSVP_on(workshop.date_and_time)
+        return back_with_message(t('messages.invitations.rsvped_to_other_workshop'))
       end
 
-      if available_spaces?(@workshop, @invitation)
-        if @workshop.attendee?(user) || @workshop.waitlisted?(user)
-          return redirect_back(fallback_location: invitation_path(@invitation),
-                               notice: t('messages.already_invited'))
-        end
+      if workshop.attendee?(user) || workshop.waitlisted?(user)
+        return back_with_message(t('messages.already_invited'))
+      end
 
+      @workshop = WorkshopPresenter.decorate(@invitation.workshop)
+      if available_spaces?(@workshop, @invitation)
         @invitation.update(attending: true, note: invitation_note, rsvp_time: Time.zone.now)
         @workshop.send_attending_email(@invitation)
 
-        return redirect_back(fallback_location: invitation_path(@invitation),
-                             notice: t('messages.accepted_invitation', name: @invitation.member.name))
-
+        return back_with_message(t('messages.accepted_invitation', name: @invitation.member.name))
       else
-        return redirect_back(fallback_location: invitation_path(@invitation),
-                             notice: t('messages.no_available_seats'))
+        return back_with_message(t('messages.no_available_seats'))
       end
     end
 
@@ -73,6 +66,10 @@ module InvitationControllerConcerns
 
     def invitation_note
       params[:workshop_invitation] ? params[:workshop_invitation][:note] : ''
+    end
+
+    def back_with_message(message)
+      redirect_back(fallback_location: invitation_path(@invitation), notice: message)
     end
   end
 end
