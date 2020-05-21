@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200511151348) do
+ActiveRecord::Schema.define(version: 20200521151343) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -534,6 +534,7 @@ ActiveRecord::Schema.define(version: 20200511151348) do
     t.datetime "reminded_at"
     t.datetime "rsvp_time"
     t.boolean  "automated_rsvp"
+    t.text     "tutorial"
   end
 
   add_index "workshop_invitations", ["member_id"], name: "index_workshop_invitations_on_member_id", using: :btree
