@@ -27,7 +27,10 @@
               - else
                 = invitation.member.full_name
           %td.small-6.columns
+            -if invitation.tutorial?
+              %small Tutorial: #{invitation.tutorial}
             -if invitation.note?
+              %br
               %small=invitation.note
               %br
             - if invitation.rsvp_time.present?
